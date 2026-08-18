@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/checkout", "destination": "/checkout/cadastro.html" },
+    { "source": "/carrinho", "destination": "/checkout/carrinho.html" }
+  ]
+}
