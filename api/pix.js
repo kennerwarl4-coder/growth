@@ -83,6 +83,7 @@ module.exports = async function handler(req, res) {
       qrImage: pixNode.image || null,
     });
   } catch (err) {
-    res.status(500).json({ ok: false, error: 'Erro interno ao gerar Pix.' });
+    console.error('[api/pix] erro inesperado', err);
+    res.status(500).json({ ok: false, error: 'Erro interno ao gerar Pix: ' + (err && err.message ? err.message : String(err)) });
   }
 };

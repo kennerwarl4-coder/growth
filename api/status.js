@@ -25,6 +25,7 @@ module.exports = async function handler(req, res) {
       paid: result.json.status === 'COMPLETED',
     });
   } catch (err) {
+    console.error('[api/status] erro inesperado', err);
     res.status(200).json({ ok: false, status: 'UNKNOWN' });
   }
 };
