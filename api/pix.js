@@ -59,6 +59,15 @@ module.exports = async function handler(req, res) {
     }
 
     const data = result.json;
+
+    if (data.status && data.status !== 'OK' && data.status !== 'PENDING') {
+      res.status(502).json({
+        ok: false,
+        error: data.errorDescription || data.details || ('Cobrança não aprovada (status: ' + data.status + ').'),
+      });
+      return;
+    }
+
     const pixNode = data.pix || (data.order && data.order.pix) || null;
 
     if (!pixNode || !pixNode.code) {
