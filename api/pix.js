@@ -75,12 +75,18 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    // Prefere o QR já em base64 (evita o navegador ter que baixar a imagem
+    // de outro domínio depois — carrega instantâneo, sem round-trip extra).
+    const qrDataUri = pixNode.base64
+      ? (pixNode.base64.indexOf('data:image') === 0 ? pixNode.base64 : 'data:image/png;base64,' + pixNode.base64)
+      : null;
+
     res.status(200).json({
       ok: true,
       transactionId: data.transactionId,
       amount,
       pixCode: pixNode.code,
-      qrImage: pixNode.image || null,
+      qrImage: qrDataUri || pixNode.image || null,
     });
   } catch (err) {
     console.error('[api/pix] erro inesperado', err);
