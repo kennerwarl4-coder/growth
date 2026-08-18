@@ -30,6 +30,12 @@ module.exports = async function handler(req, res) {
       document: onlyDigits(body.client_document) || '00000000000',
     };
 
+    // UTM/origem da campanha, capturados no navegador e repassados aqui para
+    // que fiquem gravados na transação da SigiloPay (aparecem no painel deles
+    // e no payload do webhook, permitindo cruzar venda -> campanha).
+    const utm = body.utm && typeof body.utm === 'object' ? body.utm : {};
+    const metadata = Object.keys(utm).length ? utm : undefined;
+
     const payload = {
       identifier,
       amount,
@@ -43,6 +49,7 @@ module.exports = async function handler(req, res) {
         },
       ],
       callbackUrl,
+      ...(metadata ? { metadata } : {}),
     };
 
     const result = await sigilopayFetch('/gateway/pix/receive', {
