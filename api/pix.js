@@ -30,11 +30,24 @@ module.exports = async function handler(req, res) {
       document: onlyDigits(body.client_document) || '00000000000',
     };
 
-    // UTM/origem da campanha, capturados no navegador e repassados aqui para
-    // que fiquem gravados na transação da SigiloPay (aparecem no painel deles
-    // e no payload do webhook, permitindo cruzar venda -> campanha).
+    // UTM/origem da campanha + endereço de entrega, capturados no navegador e
+    // repassados aqui para ficarem gravados na transação da SigiloPay (metadata
+    // aparece no painel deles e no payload do webhook — é o jeito de saber pra
+    // onde entregar e de qual campanha veio a venda, já que a API de pix/receive
+    // não tem um campo dedicado de endereço).
     const utm = body.utm && typeof body.utm === 'object' ? body.utm : {};
-    const metadata = Object.keys(utm).length ? utm : undefined;
+    const address = body.address && typeof body.address === 'object' ? body.address : {};
+    const addressMeta = {};
+    if (address.cep) addressMeta.endereco_cep = address.cep;
+    if (address.rua) addressMeta.endereco_rua = address.rua;
+    if (address.numero) addressMeta.endereco_numero = address.numero;
+    if (address.complemento) addressMeta.endereco_complemento = address.complemento;
+    if (address.bairro) addressMeta.endereco_bairro = address.bairro;
+    if (address.cidade) addressMeta.endereco_cidade = address.cidade;
+    if (address.estado) addressMeta.endereco_estado = address.estado;
+
+    const metadataCombined = { ...utm, ...addressMeta };
+    const metadata = Object.keys(metadataCombined).length ? metadataCombined : undefined;
 
     const payload = {
       identifier,
